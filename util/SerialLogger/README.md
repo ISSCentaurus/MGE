@@ -1,4 +1,4 @@
 Serial Logger
 =============
 
-Requires [PySerial] (http://pyserial.sourceforge.net/)
+Requires [PySerial.] (http://pyserial.sourceforge.net/)
