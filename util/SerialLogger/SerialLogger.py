@@ -1,10 +1,9 @@
 import serial
 
 ser = serial.Serial()
-port = input('COM Port [0]: ')
+port = int(input('COM Port [3]: '))
 sensorName = input('SensorName [pr]: ')
-sensorName = sensorName or 'photoresistor'
-ser.port = port or 0
+ser.port = int(port)
 ser.open()
 while True:
-    print ser.read()
+    print (ser.read().decode("utf-8"))
