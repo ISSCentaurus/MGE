@@ -24,8 +24,7 @@ void loop() {
   sensorValue = analogRead(analogInPin);
 
   // print the results to the serial monitor:
-  Serial.print("pr = " );
-  Serial.print(sensorValue);
+  Serial.println(sensorValue);
 
   // wait 2 milliseconds before the next loop
   // for the analog-to-digital converter to settle
