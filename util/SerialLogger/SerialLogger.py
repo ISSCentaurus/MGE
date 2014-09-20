@@ -2,9 +2,7 @@ import serial
 import csv
 
 ser = serial.Serial()
-port = input('COM Port [2]: ')  or 2
-port = int(port)
-sensorName = input('SensorName [pr]: ') or 'pr'
+port = input('COM Port [10]: ')  or 10
 destination = input('Output File [./data.csv]: ') or './data.csv'
 ser.port = int(port)
 ser.open()
