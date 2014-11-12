@@ -15,6 +15,8 @@
 #define DARK_VALUE   (100)  // Value at which the photoresitor is obstucted
 #define SUPERLIGHT_VALUE (170)  // Value at which the vial is refracting light onto the photoresistor
 
+#define GROWTH_TEMP (430) // Value of the IR Thermresistor at 3C
+
 #define IDEAL_MSPR (245)   // Ideal Milliseconds per Revolution
 #define SLUSH_MSPR (10) // Slush zone for Milliseconds per Revolution in Milliseconds
 
@@ -63,34 +65,28 @@ int checkSystems() {
     ledR.dutycycle(100);
 
     //check photoresistor
-    if (resistiveSensors.readQ2() >= LIGHT_VALUE && resistiveSensors.readQ2() < SUPERLIGHT_VALUE) {
+    if (resistiveSensors.readQ2() >= LIGHT_VALUE && resistiveSensors.readQ2() <= SUPERLIGHT_VALUE) {
         //Turn motor slowly to obstruct the photoresistor
         while (1) {
             ledB.dutycycle(100);
             wait(.1);
             ledB.dutycycle(0);
-            if (resistiveSensors.readQ2() >= DARK_VALUE && resistiveSensors.readQ2() <= SUPERLIGHT_VALUE) {
+            if (resistiveSensors.readQ2() > DARK_VALUE && resistiveSensors.readQ2() < SUPERLIGHT_VALUE) {
 
-                logToScreen("Had to spin motor to find middle of vial", 0);
+                logToScreen("Had to spin motor to find vial", 0);
                 return 1;
 
             }
         }
     }
 
-    //check if temp sensor is outputting data
-    if (resistiveSensors.readQ1() > 1015) {
-        logToScreen("Temperature sensor read error", 1);
-        return 0;
-    }
-    logToScreen("Systems checked", 0);
-    return (1);
+    return 1;
 }
 
 int waitUntilTemp() {
     while (1) {
         //need to test for output a 4 degrees celsius
-        if (resistiveSensors.getQ1(10, 5) >= 307) {
+        if (resistiveSensors.getQ1(10, 5) >= GROWTH_TEMP) {
             logToScreen(sprintf("Temperature checked, was %d", resistiveSensors.readQ1()), 0);
             return (1);
         }
@@ -115,7 +111,7 @@ int interval(void) {
     while (1) {
         if (recording) {
 
-            if (resistiveSensors.readQ2() < LIGHT_VALUE) //Is there anything in the way?
+            if (resistiveSensors.readQ2() > DARK_VALUE || resistiveSensors.readQ2() > SUPERLIGHT_VALUE) //Is there anything in the way?
             { //Yes - something in the way.
 
                 logToScreen(sprintf("Light: %d at %s", resistiveSensors.readQ2(), dateTime.getStamp()), 3); //Log Light Level
@@ -128,7 +124,7 @@ int interval(void) {
 
         } else { //Not recording
 
-            if (resistiveSensors.readQ2() < LIGHT_VALUE) { //Is there anything in the way?
+            if (resistiveSensors.readQ2() > DARK_VALUE || resistiveSensors.readQ2() > SUPERLIGHT_VALUE) { //Is there anything in the way?
 
                 recording = 1;
                 past = dateTime.get();
@@ -143,18 +139,18 @@ int interval(void) {
 
 int maintainSpeed() {
 
-    //speed up motor too slow
+    //Speed up - Motor too slow.
     if (interval() < (IDEAL_MSPR - SLUSH_MSPR)) {
         dutycycle = dutycycle + 1;
         ledB.dutycycle(dutycycle);
-        logToScreen("Maintaining speed - was too fast", 0);
+        logToScreen("Maintaining speed - was too slow", 0);
         return 0;
     }
-    //slow down motor too fast
+    //Slow down - Motor too fast.
     if (interval() > (IDEAL_MSPR + SLUSH_MSPR)) {
         dutycycle = dutycycle - 1;
         ledB.dutycycle(dutycycle);
-        logToScreen("Maintaining speed - was too slow", 0);
+        logToScreen("Maintaining speed - was too fast", 0);
         return 0;
     } else {
         logToScreen("Maintaining speed.", 0);
