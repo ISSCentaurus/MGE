@@ -1,0 +1,9 @@
+/*
+ * File:   BioTestCode.c
+ * Author: Sam Cuthbertson
+ *
+ * Will test if samples  of bacteria are growing, as well as starting a new test on each reboot 
+ *  and storing all tests on the SD card.
+ *
+ * Created on January 14, 2015, 8:14 AM
+ */
