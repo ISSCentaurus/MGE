@@ -8,7 +8,7 @@
 #include <nesi.h>
 #include <math.h>
 
-#define IDEAL_MSPR (330)   // Ideal Milliseconds per Revolution
+#define IDEAL_MSPR (83)   // Ideal Milliseconds per Revolution
 #define SLUSH_MSPR (10) // Slush zone for Milliseconds per Revolution in Milliseconds
 
 #define LIGHT_VALUE   (200)   // Value at which the photoresitor is unobstucted
