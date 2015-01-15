@@ -17,8 +17,9 @@
 
 #define LIGHT_VALUE   (200)   // Value at which the photoresitor is unobstucted
 #define DARK_VALUE   (500)  // Value at which the photoresitor is obstucted
-#define SUPERLIGHT_VALUE (70)  // Value at which the vial is refracting light onto the photoresistor
+#define SUPERLIGHT_VALUE (70)// Value at which the vial is refracting light onto the photoresistor
                                 // super light will decrease as bacteria grows....
+
 
 static int debug = 1; // Are we in debug mode?
 static int dutycycle = 100; // Current dutycycle of the motor
@@ -29,6 +30,7 @@ float getTemp(int);
 int maintainSpeed(void);
 int interval(void);
 void logToScreen(String, int);
+
 
 int main(void) {
     // Initialize all modules
@@ -47,13 +49,22 @@ int main(void) {
     _T5IF = OFF;  // clear the interrupt flag
     _T5IP = 3;
     T5CONbits.TON = 1;// set to sub normal priority
+    
+   
+        
+   file1.open("data.txt");
+   
+   
+    
 
     while (1) {
 
-       //if(float getTemp(int i) = ?){
+       //if(getTemp(int i) = ?){
         ledR.dutycycle(100);
 
         maintainSpeed();
+        
+        
         
        //} 
       
@@ -63,6 +74,7 @@ int main(void) {
     return 0;
 
 }
+
 
 int interval(void) {
 
@@ -79,7 +91,7 @@ int interval(void) {
             { //Yes - something in the way.
 
                 logToScreen("Light %d \r\n", PR); //Log Light Level
-
+               
             } else { //No - nothing in the way
            
                 int inter = x - milisecondCount;
@@ -131,9 +143,9 @@ _ISR_ _T5Interrupt() {
     x++;
 }
 
-float getTemp(int i) { // Forumla found by Brooks Macdonald and Tray Guess
+float getTemp(int i) { // Forumla found by Nikil 
 
-    return 70.815 - 20.33 * log(.33796 * pow(1.005989, i)); // Convert resistance value into temperature
+    
 
 }
 
@@ -144,8 +156,10 @@ void logToScreen(String str, int i) {
         usb.printf(str, i);
 
     } else if (i > 1) {
-
-        dataLog.add(str, i);
+        
+       char buffer [33]; 
+       itoa (i,buffer,10);
+       file1.write("PR: %s\n",buffer);
 
     }
 
