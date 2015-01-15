@@ -9,4 +9,9 @@
 #include <nesi.h>
 #include <math.h>
 
-while 
+int main (void){
+
+  while (1){
+    LedB(100);
+    }
+}
