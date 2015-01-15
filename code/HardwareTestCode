@@ -12,6 +12,7 @@
 int main (void){
 
   while (1){
-    LedB(100);
+    ledB.dutycycle(100);
     }
+    return 0
 }
