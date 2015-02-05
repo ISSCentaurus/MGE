@@ -15,9 +15,9 @@
 #define IDEAL_MSPR (83)   // Ideal Milliseconds per Revolution
 #define SLUSH_MSPR (10) // Slush zone for Milliseconds per Revolution in Milliseconds
 
-#define LIGHT_VALUE   (200)   // Value at which the photoresitor is unobstucted
-#define DARK_VALUE   (500)  // Value at which the photoresitor is obstucted
-#define SUPERLIGHT_VALUE (70)// Value at which the vial is refracting light onto the photoresistor
+#define LIGHT_VALUE   (130)   // Value at which the photoresitor is unobstucted
+#define DARK_VALUE   (130)  // Value at which the photoresitor is obstucted
+#define SUPERLIGHT_VALUE (110)// Value at which the vial is refracting light onto the photoresistor
                                 // super light will decrease as bacteria grows....
 
 
@@ -50,8 +50,15 @@ int main(void) {
     _T5IP = 3;
     T5CONbits.TON = 1;// set to sub normal priority
 
-
-
+    // time = 12:52:50
+    timeTemp.hour   = 12;
+    timeTemp.minute = 52;
+    timeTemp.second = 50;
+    
+    dateTime.set(timeTemp);
+    
+    
+     
    
 
 
@@ -64,8 +71,11 @@ int main(void) {
 
         maintainSpeed();
 
+        timeTemp = dateTime.get()
 
-
+        if((timeTemp.hour % 15) == 0){
+            
+        }
        //}
 
 
@@ -90,7 +100,7 @@ int interval(void) {
             if (PR > DARK_VALUE || PR < SUPERLIGHT_VALUE) //Is there anything in the way?
             { //Yes - something in the way.
 
-                logToScreen("Light %d \r\n", PR); //Log Light Level
+                logToScreen("Light: %d \r\n", PR); //Log Light Level
 
             } else { //No - nothing in the way
 
@@ -122,17 +132,17 @@ int maintainSpeed() {
     if (inter > (IDEAL_MSPR - SLUSH_MSPR)) {
         dutycycle = dutycycle + 1;
         ledB.dutycycle(dutycycle);
-        logToScreen("Maintaining speed - was too slow interval:%d \r\n", dutycycle);
+        //logToScreen("Maintaining speed - was too slow interval:%d \r\n", dutycycle);
         return 0;
     }
     //Slow down - Motor too fast.
     if (inter < (IDEAL_MSPR + SLUSH_MSPR)) {
         dutycycle = dutycycle - 1;
         ledB.dutycycle(dutycycle);
-        logToScreen("Maintaining speed - was too fast interval:%d \r\n", dutycycle);
+        //logToScreen("Maintaining speed - was too fast interval:%d \r\n", dutycycle);
         return 0;
     } else {
-        logToScreen("Maintaining speed. dc:%d \r\n", dutycycle);
+        //logToScreen("Maintaining speed. dc:%d \r\n", dutycycle);
         return 1;
     }
 }
@@ -162,6 +172,8 @@ void logToScreen(String str, int i) {
        //file1.open("data.txt");
        //file1.write(str, i);
        //file1.close();''
+       
+        
         dataLog.add(str, i);
     }
 
