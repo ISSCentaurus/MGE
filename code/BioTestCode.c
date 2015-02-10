@@ -78,7 +78,8 @@ int main(void) {
     
                 //Start recording
                 record = 1;
-    
+                //wait(10000); can we do this to just record for 10 seconds instead of a whole minute?
+                //record = 0;     
             }
         } else { // We're recording
            
