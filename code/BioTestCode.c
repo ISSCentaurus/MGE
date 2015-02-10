@@ -15,15 +15,14 @@
 #define IDEAL_MSPR (83)   // Ideal Milliseconds per Revolution
 #define SLUSH_MSPR (10) // Slush zone for Milliseconds per Revolution in Milliseconds
 
-#define LIGHT_VALUE   (130)   // Value at which the photoresitor is unobstucted
+//#define LIGHT_VALUE   (130)   // Value at which the photoresitor is unobstucted
 #define DARK_VALUE   (130)  // Value at which the photoresitor is obstucted
-#define SUPERLIGHT_VALUE (110)// Value at which the vial is refracting light onto the photoresistor
-                                // super light will decrease as bacteria grows....
-
+#define SUPERLIGHT_VALUE (110) // Value at which the vial is refracting light onto the photoresistor
 
 static int debug = 0; // Are we in debug mode?
 static int dutycycle = 100; // Current dutycycle of the motor
 int x = 0;
+int record = 0;
 static volatile Uint64 milisecondCount = 0; // Number of milliseconds since last vial
 
 float getTemp(int);
@@ -36,48 +35,61 @@ int main(void) {
     // Initialize all modules
     nesi.init();
 
-
     // Connect the USB COM interface
     usb.connect();
+    
+    dataLog.add("*************************************************************",0); // Will help identify new tests
 
     T5CON = 0x0030;  // disabled, prescaled, internal oscillator
     TMR5 = 0;        // clear the timer
 
-   PR5 = (Uint16)((CLOCKS_PER_SEC/256)/1000 );  // interrupt 1/2 second later
+    PR5 = (Uint16)((CLOCKS_PER_SEC/256)/1000 );  // interrupt 1/2 second later
 
     _T5IE = ON;   // enable Timer5 to interrupt
     _T5IF = OFF;  // clear the interrupt flag
     _T5IP = 3;
     T5CONbits.TON = 1;// set to sub normal priority
 
-    // time = 12:52:50
-    timeTemp.hour   = 12;
-    timeTemp.minute = 52;
-    timeTemp.second = 50;
+    // time = 00:00:00
+    timeTemp.hour   = 0;
+    timeTemp.minute = 0;
+    timeTemp.second = 0;
     
-    dateTime.set(timeTemp);
-    
-    
-     
-   
+    dateTime.set(timeTemp); // Start dateTime
 
+    while (1) { // Main Loop
 
+        ledR.dutycycle(100); // Turn on the Amber LED
+        
+        /*
+        * UNCOMMENT THIS LINE TO ENABLE CONSTANT RECORDING
+        *record = 1;
+        *
+        */
+        
+        
+        maintainSpeed(); // Hold centrifuge at speed
 
+        timeTemp = dateTime.get(); // Get Current Time
 
-    while (1) {
-
-       //if(getTemp(int i) = ?){
-        ledR.dutycycle(100);
-
-        maintainSpeed();
-
-        timeTemp = dateTime.get()
-
-        if((timeTemp.hour % 15) == 0){
+        if(!record) { // We're not recording
             
-        }
-       //}
-
+            if((timeTemp.minute % 15) == 0 ){ // Is our time divisible by 15?
+    
+                //Start recording
+                record = 1;
+    
+            }
+        } else { // We're recording
+           
+           if((timeTemp.minute % 15) !== 0) { //We're out of that one minute span
+    
+               //Stop recording
+               record = 0;
+               
+           }
+           
+       }
 
     }
 
@@ -100,7 +112,7 @@ int interval(void) {
             if (PR > DARK_VALUE || PR < SUPERLIGHT_VALUE) //Is there anything in the way?
             { //Yes - something in the way.
 
-                logToScreen("Light: %d \r\n", PR); //Log Light Level
+                logToScreen(" \r\n Light: %d", PR); //Log Light Level
 
             } else { //No - nothing in the way
 
@@ -165,7 +177,7 @@ void logToScreen(String str, int i) {
 
         usb.printf(str, i);
 
-    } else if (i > 1) {
+    } else if (record) { //If we're recording
 
        //char buffer [33];
        //itoa (i,buffer,10);
