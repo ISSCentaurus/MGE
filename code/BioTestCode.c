@@ -11,7 +11,7 @@
  */
 #include <nesi.h>
 #include <math.h>
-
+#include "dateTime.h"
 #define IDEAL_MSPR (83)   // Ideal Milliseconds per Revolution
 #define SLUSH_MSPR (10) // Slush zone for Milliseconds per Revolution in Milliseconds
 
@@ -36,9 +36,9 @@ int main(void) {
     nesi.init();
 
     // Connect the USB COM interface
-    usb.connect();
-    
-    dataLog.add("*************************************************************",0); // Will help identify new tests
+    //usb.connect();
+
+    logToScreen("*************************************************************",0); // Will help identify new tests
 
     T5CON = 0x0030;  // disabled, prescaled, internal oscillator
     TMR5 = 0;        // clear the timer
@@ -50,46 +50,49 @@ int main(void) {
     _T5IP = 3;
     T5CONbits.TON = 1;// set to sub normal priority
 
+    DateAndTime timeTemp;
+
     // time = 00:00:00
     timeTemp.hour   = 0;
     timeTemp.minute = 0;
     timeTemp.second = 0;
-    
+
     dateTime.set(timeTemp); // Start dateTime
 
     while (1) { // Main Loop
 
         ledR.dutycycle(100); // Turn on the Amber LED
-        
+
         /*
         * UNCOMMENT THIS LINE TO ENABLE CONSTANT RECORDING
-        *record = 1;
+        * record = 1;
         *
         */
-        
-        
+
+
         maintainSpeed(); // Hold centrifuge at speed
 
         timeTemp = dateTime.get(); // Get Current Time
 
         if(!record) { // We're not recording
-            
-            if((timeTemp.minute % 15) == 0 ){ // Is our time divisible by 15?
-    
+
+            if(((timeTemp.minute % 2) == 0) && (timeTemp.second < 3)){ // Is our time divisible by 5?
+
                 //Start recording
                 record = 1;
-                //wait(10000); can we do this to just record for 10 seconds instead of a whole minute?
-                //record = 0;     
+                logToScreen("New", 0);
+
             }
         } else { // We're recording
-           
-           if((timeTemp.minute % 15) !== 0) { //We're out of that one minute span
-    
+
+           if((timeTemp.second > 3)) { //We're out of that three second span
+
                //Stop recording
                record = 0;
-               
+               logToScreen("End", 0);
+
            }
-           
+
        }
 
     }
@@ -168,7 +171,7 @@ _ISR_ _T5Interrupt() {
 
 float getTemp(int i) { // Forumla found by Nikil
 
-
+    return 1.1;
 
 }
 
@@ -180,14 +183,8 @@ void logToScreen(String str, int i) {
 
     } else if (record) { //If we're recording
 
-       //char buffer [33];
-       //itoa (i,buffer,10);
-       //file1.open("data.txt");
-       //file1.write(str, i);
-       //file1.close();''
-       
-        
         dataLog.add(str, i);
+
     }
 
 }
