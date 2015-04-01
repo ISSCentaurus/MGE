@@ -19,7 +19,7 @@
 #define DARK_VALUE   (130)  // Value at which the photoresitor is obstucted
 #define SUPERLIGHT_VALUE (110) // Value at which the vial is refracting light onto the photoresistor
 
-static int debug = 0; // Are we in debug mode?
+static int debug = 1; // Are we in debug mode?
 static int dutycycle = 100; // Current dutycycle of the motor
 int x = 0;
 int record = 0;
@@ -36,7 +36,7 @@ int main(void) {
     nesi.init();
 
     // Connect the USB COM interface
-    //usb.connect();
+    usb.connect();
 
     logToScreen("*************************************************************",0); // Will help identify new tests
 
@@ -58,9 +58,9 @@ int main(void) {
     timeTemp.second = 0;
 
     dateTime.set(timeTemp); // Start dateTime
-
+    
     while (1) { // Main Loop
-
+        ledB.dutycycle(100);
         ledR.dutycycle(100); // Turn on the Amber LED
 
         /*
@@ -76,7 +76,7 @@ int main(void) {
 
         if(!record) { // We're not recording
 
-            if(((timeTemp.minute % 2) == 0) && (timeTemp.second < 3)){ // Is our time divisible by 5?
+            if(((timeTemp.second % 2) == 0)){ //&& (timeTemp.second < 3)){ // Is our time divisible by 5?
 
                 //Start recording
                 record = 1;
@@ -85,7 +85,7 @@ int main(void) {
             }
         } else { // We're recording
 
-           if((timeTemp.second > 3)) { //We're out of that three second span
+           if((timeTemp.second % 2)==1) { //We're out of that three second span
 
                //Stop recording
                record = 0;
@@ -148,14 +148,14 @@ int maintainSpeed() {
     if (inter > (IDEAL_MSPR - SLUSH_MSPR)) {
         dutycycle = dutycycle + 1;
         ledB.dutycycle(dutycycle);
-        //logToScreen("Maintaining speed - was too slow interval:%d \r\n", dutycycle);
+        logToScreen("Maintaining speed - was too slow interval:%d \r\n", dutycycle);
         return 0;
     }
     //Slow down - Motor too fast.
     if (inter < (IDEAL_MSPR + SLUSH_MSPR)) {
         dutycycle = dutycycle - 1;
         ledB.dutycycle(dutycycle);
-        //logToScreen("Maintaining speed - was too fast interval:%d \r\n", dutycycle);
+        logToScreen("Maintaining speed - was too fast interval:%d \r\n", dutycycle);
         return 0;
     } else {
         //logToScreen("Maintaining speed. dc:%d \r\n", dutycycle);
