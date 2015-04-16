@@ -107,14 +107,14 @@ int maintainSpeed() {
     int inter = interval();
 
     //Speed up - Motor too slow.
-    if (inter > (IDEAL_MSPR - SLUSH_MSPR)) {
+    if (inter > (IDEAL_MSPR + SLUSH_MSPR)) {
         dutycycle = dutycycle + 1;
         ledB.dutycycle(dutycycle);
         logToScreen("Maintaining speed - was too slow dc:%d \r\n", dutycycle);
         return 0;
     }
     //Slow down - Motor too fast.
-    if (inter < (IDEAL_MSPR + SLUSH_MSPR)) {
+    if (inter < (IDEAL_MSPR - SLUSH_MSPR)) {
         dutycycle = dutycycle - 1;
         ledB.dutycycle(dutycycle);
         logToScreen("Maintaining speed - was too fast dc:%d \r\n", dutycycle);
