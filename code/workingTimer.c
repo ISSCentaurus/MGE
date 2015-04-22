@@ -1,4 +1,4 @@
-*
+/*
  * File:   BioTestCode.c
  * Author: Mikayla Whiteaker
  *
