@@ -1,4 +1,4 @@
-/*
+*
  * File:   BioTestCode.c
  * Author: Mikayla Whiteaker
  *
@@ -42,7 +42,7 @@ int main(void) {
     _T5IP = 3;
     T5CONbits.TON = 1;// set to sub normal priority
 
-   
+
     DateAndTime timeTemp;
 
     // time = 00:00:00
@@ -52,42 +52,50 @@ int main(void) {
 
     dateTime.set(timeTemp); // Start dateTime
 
+    usb.connect();
+
     while (1) { // Main Loop
 
-       
+
+
 
         timeTemp = dateTime.get(); // Get Current Time
 
         if(!record) { // We're not recording
 
-            if(((timeTemp.second % 2) == 0)){ //&& (timeTemp.second < 3)){ // Is our time divisible by 5?
+            if(((timeTemp.minute % 5) == 0) && (timeTemp.second <= 3)){ // Is our time divisible by 5?
 
                 //Start recording
+                usb.print("logging == yay!\r\n");
                 ledR.dutycycle(0); //tun the LED on to simulate recording data
                 record = 1;
                 logToScreen("New", 0);
-                
+
 
             }
-        } else { // We're recording
+        }
+        else { // We're recording
 
-           if((timeTemp.second % 2)==1 ) { //We're out of that three second span
+           if((timeTemp.second > 3 ) ) { //We're out of that three second span
 
                //Stop recording
+             usb.print("not logging == cool!\r\n");
                ledR.dutycycle(100); //turn LED off to simulate not recording data
                record = 0;
                logToScreen("End", 0);
-          
-               
+           }
+
+
 
            }
 
 
 
 
-       }
+       
 
     }
+
 
     return 0;
 
@@ -111,6 +119,9 @@ void logToScreen(String str, int i) {
 
     }
 }
+
+
+
 
 
 
