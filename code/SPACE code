@@ -87,7 +87,7 @@ int main(void) {
 
         if(!record) { // We're not recording
 
-            if((timeTemp.second % 2) == 0){ 
+            if(((timeTemp.minute % 5) == 0) && (timeTemp.second <= 3)){ 
 
                 //Start recording
                 record = 1;
@@ -96,7 +96,7 @@ int main(void) {
             }
         } else { // We're recording
 
-            if((timeTemp.second % 2)==1) { //We're out of that three second span
+             if((timeTemp.second > 3 ) ) { //We're out of that three second span
 
                //Stop recording
                record = 0;
