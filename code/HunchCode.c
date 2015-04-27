@@ -73,7 +73,7 @@ int main(void) {
         logToScreen("Temp: %d \r\n", tempval);
         if(tempval < THAWVALUE) { //We're going to need to start recording
             frozen = 0; //Get out of this loop, hop into the recording loop
-            logToScreen("Thawed: %s \r\n", dateTime.getStamp());
+            logToScreen(dateTime.getStamp(), 0); //Log the date
         }
 
     }
@@ -93,28 +93,31 @@ int main(void) {
 
         if (!record) { // We're not recording
 
-            if(timeTemp.second > 25) {
+            if(timeTemp.second > 25) { //Safe to close lightLog
                 
                 lightLog.close();
+                usb.connect();
+                while(1){
+                    ledB.dutycycle(0); //Turn off the motor as an audible cue for the fliers.
+                }
                 
             }
             
-            if ((timeTemp.second < 20)) {
+            if ((timeTemp.second < 20)) { //We just got plugged in!
 
                 //Start recording
                 record = 1;
                 lightLog.open();
-                logToScreen("NewSet ************************************ \r\n", 0);
+                logToScreen("NewSet *************************************************************************** \r\n", 0);
 
             }
         } else { // We're recording
 
-            if (timeTemp.second > 20) { //We're out of that three second span
+            if (timeTemp.second > 20) { //We're out of that twenty second span
 
                 //Stop recording
                 record = 0;
                 logToScreen("EndSet \r\n", 0);
-                ledB.dutycycle(0); //Turn off the motor as an audible cue for the fliers.
                 
             }
 
