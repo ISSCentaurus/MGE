@@ -14,7 +14,7 @@
 #define IDEAL_MSPR (83)   // Ideal Milliseconds per Revolution
 #define SLUSH_MSPR (10) // Slush zone for Milliseconds per Revolution in Milliseconds
 
-#define DARK_VALUE   (100)  // Value above which the photoresitor is obstucted
+#define DARK_VALUE   (130)  // Value above which the photoresitor is obstucted
 #define SUPERLIGHT_VALUE (80) // Value below which the vial is refracting light onto the photoresistor
 #define THAWVALUE (530) // Value from the thermistor at which we need to begin recording !(485)!
 
