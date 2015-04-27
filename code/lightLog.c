@@ -1,4 +1,7 @@
 /**
+ * File:   lightLog.h
+ * Author: Sam Cuthbertson
+ * 
  * NESI DataLog Driver License
  * Copyright (C) 2013 Mickie Byrd
  *
@@ -19,6 +22,9 @@
 /**
  * Change Log
  *
+ * 4/24/2015 - Sam Cuthbertson
+ *   Updated to from dataLog to lightLog for Centaurus MGE.
+ * 
  * 12/30/2013 - Mickie Byrd
  *   Added type casts to suppress compiler warnings.
  */

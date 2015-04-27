@@ -2,7 +2,8 @@
  * File:   lightLog.h
  * Author: Sam Cuthbertson
  *
- * Created on April 23, 2015, 11:55 AM
+ * NESI DataLog Driver License
+ * Copyright (C) 2013 Mickie Byrd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

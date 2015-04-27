@@ -1,6 +1,6 @@
 /*
  * File:   FinalSpaceCode.c
- * Authors: Sam Cuthbertson and mikayla whiteaker
+ * Authors: Sam Cuthbertson and Mikayla Whiteaker
  *
  * Will test if samples  of bacteria are growing, as well as starting a new test on each reboot
  *  and storing all tests on the SD card.
