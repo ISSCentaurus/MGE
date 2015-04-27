@@ -1,5 +1,5 @@
 /*
- * File:   BioTestCode.c
+ * File:   HunchCode.c
  * Author: Sam Cuthbertson and Mikayla Whiteaker
  *
  * Will test efficiency of the motor through measuring dutycycle at a fixed speed, as well as starting a new test on each reboot
