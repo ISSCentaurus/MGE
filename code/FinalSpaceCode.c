@@ -16,7 +16,7 @@
 
 #define DARK_VALUE   (100)  // Value above which the photoresitor is obstucted
 #define SUPERLIGHT_VALUE (80) // Value below which the vial is refracting light onto the photoresistor
-#define THAWVALUE (485) // Value from the thermistor at which we need to begin recording !(485)!
+#define THAWVALUE (530) // Value from the thermistor at which we need to begin recording !(485)!
 
 static int debug = 0; // Are we in debug mode? 1-Log to Serial 0-Log to SD
 static int dutycycle = 100; // Current dutycycle of the motor
@@ -73,7 +73,7 @@ int main(void) {
         logToScreen("Temp: %d \r\n", tempval);
         if(tempval < THAWVALUE) { //We're going to need to start recording
             frozen = 0; //Get out of this loop, hop into the recording loop
-            //logToScreen("Thawed: %s \r\n", dateTime.getStamp());
+            logToScreen(dateTime.getStamp(), 0);
         }
 
     }
