@@ -2,10 +2,8 @@
  * File:   BioTestCode.c
  * Author: Sam Cuthbertson and Mikayla Whiteaker
  *
- * Will test if samples  of bacteria are growing, as well as starting a new test on each reboot
- *  and storing all tests on the SD card.
- * (To test bateria this will need to get the light sensor value(super bright maybe) and store to SD)
- *
+ * Will test efficiency of the motor through measuring dutycycle at a fixed speed, as well as starting a new test on each reboot
+ *  and storing all test data on the SD card.
  *
  * Created on January 14, 2015, 8:14 AM
  */
@@ -20,7 +18,7 @@
 #define SUPERLIGHT_VALUE (80) // Value below which the vial is refracting light onto the photoresistor
 #define THAWVALUE (550) // Value from the thermistor at which we need to begin recording !(485)!
 
-static int debug = 0; // Are we in debug mode?
+static int debug = 0; // Are we in debug mode? 1-Log to Serial 0-Log to SD
 static int dutycycle = 100; // Current dutycycle of the motor
 int x = 0; // Counter variable for intterupt 5
 int record = 0; // Are we recording?
@@ -116,6 +114,7 @@ int main(void) {
                 //Stop recording
                 record = 0;
                 logToScreen("EndSet \r\n", 0);
+                ledB.dutycycle(0); //Turn off the motor as an audible cue for the fliers.
                 
             }
 
@@ -202,7 +201,7 @@ float tempInDegrees(double tempval) {
     
 }
 
-double getTemp() { // Forumla found by Nikil
+double getTemp() { 
 
     int vialFound = 0;
     
@@ -215,7 +214,6 @@ double getTemp() { // Forumla found by Nikil
             ledB.dutycycle(0);
             vialFound = 1;
             return resistiveSensors.getQ1(10, 50);
-            //return (3.3 - ((3.3 / 1024) * resistiveSensors.getQ1(20, 20)))/(3.3/10000);
             
         } else { // Nothing in the way
 

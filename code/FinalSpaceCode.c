@@ -18,7 +18,7 @@
 #define SUPERLIGHT_VALUE (80) // Value below which the vial is refracting light onto the photoresistor
 #define THAWVALUE (485) // Value from the thermistor at which we need to begin recording !(485)!
 
-static int debug = 0; // Are we in debug mode?
+static int debug = 0; // Are we in debug mode? 1-Log to Serial 0-Log to SD
 static int dutycycle = 100; // Current dutycycle of the motor
 int x = 0; // Counter variable for intterupt 5
 int record = 0; // Are we recording?
