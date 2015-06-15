@@ -11,17 +11,20 @@
 #include <math.h>
 #include "dateTime.h"
 #include "lightLog.h"
-#define IDEAL_MSPR (83)   // Ideal Milliseconds per Revolution
-#define SLUSH_MSPR (10) // Slush zone for Milliseconds per Revolution in Milliseconds
 
-#define DARK_VALUE   (130)  // Value above which the photoresitor is obstucted
-#define SUPERLIGHT_VALUE (80) // Value below which the vial is refracting light onto the photoresistor
-#define THAWVALUE (530) // Value from the thermistor at which we need to begin recording !(485)!
+#define IDEAL_MSPR (83)   // Ideal Milliseconds per Revolution
+#define SLUSH_MSPR (10) // Slush zone for Milliseconds per Revolution in Milliseconds   
+
+#define DARK_VALUE (200)  // Value above which the photoresitor is obstucted
+#define SUPERLIGHT_VALUE (250) // Value below which the vial is refracting light onto the photoresistor
+#define THAWVALUE (750) // Value from the thermistor at which we need to begin recording !(485)!
 
 static int debug = 0; // Are we in debug mode? 1-Log to Serial 0-Log to SD
 static int dutycycle = 100; // Current dutycycle of the motor
-int x = 0; // Counter variable for intterupt 5
+int x = 0; // Counter variable for interrupt 5
 int record = 0; // Are we recording?
+int ControlSample = 0; // Is it a control sample?
+
 static volatile Uint64 milisecondCount = 0; // Number of milliseconds since last vial
 
 double getTemp(void);
@@ -40,9 +43,11 @@ int main(void) {
     if (debug) {
         usb.connect();
     }
-
+    
+    record = 1;
     logToScreen("*************************************************************", 0); // Will help identify new tests
-
+    record = 0;
+    
     T5CON = 0x0030; // disabled, prescaled, internal oscillator
     TMR5 = 0; // clear the timer
 
@@ -65,19 +70,6 @@ int main(void) {
     ledB.dutycycle(100); // Start the motor
     ledR.dutycycle(100); // Turn on the Amber LED
     
-    int frozen = 1;  // Change to 1 to enable temperature check on startup
-    
-    while (frozen) {
-
-        int tempval = getTemp();
-        logToScreen("Temp: %d \r\n", tempval);
-        if(tempval < THAWVALUE) { //We're going to need to start recording
-            frozen = 0; //Get out of this loop, hop into the recording loop
-            logToScreen(dateTime.getStamp(), 0);
-        }
-
-    }
-
     while (1) { // Main Loop
 
         /*
@@ -87,37 +79,47 @@ int main(void) {
          */
 
 
-        maintainSpeed(); // Hold centrifuge at speed
+        if(!ControlSample || record) {
+         
+            maintainSpeed(); // Hold centrifuge at speed
+
+        }
 
         timeTemp = dateTime.get(); // Get Current Time
 
         if (!record) { // We're not recording
             
-            if (((timeTemp.minute % 5) == 0) && (timeTemp.second <= 3)) {
+            if (((timeTemp.minute % 1) == 0) && (timeTemp.second <= 3)) {
 
+                
+                usb.disconnect();
+                lightLog.open();
+                
                 //Start recording
                 record = 1;
-                lightLog.open();
-                logToScreen("NewSet ************************************ \r\n", 0);
+                logToScreen("\r\n NewSet ************************************ Temp:", resistiveSensors.readQ1());
 
             }
             
-            if (((timeTemp.minute % 5) == 0) && (timeTemp.second > 6)) {
+            if (((timeTemp.minute % 1) == 0) && (timeTemp.second > 6)) {
+                
                 
                 lightLog.close();
+                usb.connect();
                 
             }
             
         } else { // We're recording
 
-            if (timeTemp.second > 3) { //We're out of that three second span
+            
+     if (timeTemp.second > 3) { //We're out of that three second span
 
                 //Stop recording
+                logToScreen("\r\n EndSet. Temp: ", resistiveSensors.readQ1());
                 record = 0;
-                logToScreen("EndSet \r\n", 0);
+                ledB.dutycycle(0);
                 
             }
-
         }
 
     }
@@ -129,35 +131,43 @@ int main(void) {
 int interval(void) {
 
     int recording = 0;
-
+    int inter = 0;
+    int vialLength = 0;
     while (1) {
-
+        
+        
         int PR = resistiveSensors.readQ2();
         delay(2);
 
         if (recording) {
 
-            if (PR > DARK_VALUE || PR < SUPERLIGHT_VALUE) //Is there anything in the way?
+            vialLength++;
+            if (vialLength < 20) //Is there anything in the way?
             { //Yes - something in the way.
 
+                if(PR > 1000) {
+                    ControlSample = 1;
+                }
                 if (record) {
                     logToScreen("\r\n Light: %d", PR); //Log Light Level
                 }
 
-            } else { //No - nothing in the way
-
-                int inter = x - milisecondCount;
-                milisecondCount = x;
-                return inter; //Return the interval
-
+            } else {
+                recording = 0;
+                if(PR > DARK_VALUE){
+                    dutycycle = 100;
+                }
+                return inter;
             }
 
         } else { //Not recording
 
-            if (PR > DARK_VALUE || PR < SUPERLIGHT_VALUE) { //Is there anything in the way?
+            if (PR > DARK_VALUE) { //Is there anything in the way?
 
                 recording = 1;
-
+                inter = x - milisecondCount;
+                milisecondCount = x;
+            
             }
 
         }
@@ -174,17 +184,17 @@ int maintainSpeed() {
     if (inter > (IDEAL_MSPR + SLUSH_MSPR)) {
         dutycycle = dutycycle + 1;
         ledB.dutycycle(dutycycle);
-        logToScreen("Maintaining speed - was too slow dc:%d \r\n", dutycycle);
+        logToScreen("\r\n Maintaining speed - was too slow dc:%d", dutycycle);
         return 0;
     }
     //Slow down - Motor too fast.
     if (inter < (IDEAL_MSPR - SLUSH_MSPR)) {
         dutycycle = dutycycle - 1;
         ledB.dutycycle(dutycycle);
-        logToScreen("Maintaining speed - was too fast dc:%d \r\n", dutycycle);
+        logToScreen("\r\n Maintaining speed - was too fast dc:%d", dutycycle);
         return 0;
     } else {
-        logToScreen("Maintaining speed. dc:%d \r\n", dutycycle);
+        logToScreen("\r\n Maintaining speed. inter:%d", inter);
         return 1;
     }
 }
@@ -193,6 +203,11 @@ _ISR_ _T5Interrupt() {
 
     _T5IF = OFF; //clear overflow flag
     x++;
+    
+    if(x > 100000000) {
+        x = 0;
+    }
+    
 }
 
 float tempInDegrees(double tempval) {
@@ -250,9 +265,9 @@ void logToScreen(String str, int i) {
 
         lightLog.add(str, i);
 
-    } else if (!record) {
+    } else {
         
-        dataLog.add(str, i); 
+        //dataLog.add(str, i); 
         
     }
 
