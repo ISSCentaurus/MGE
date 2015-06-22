@@ -143,15 +143,15 @@ int interval(void) {
         
         
         int PR = resistiveSensors.readQ2();
-        delay(1);
+        delay(2);
 
         if (recording) {
 
             vialLength++;
-            if (vialLength < 40) //Is there anything in the way?
+            if (vialLength < 20) //Is there anything in the way?
             { //Yes - something in the way.
 
-                if(PR > 700) {
+                if(PR > 900) {
                     ControlSample = 1;
                 }
                 if (record) {
