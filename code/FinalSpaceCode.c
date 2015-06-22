@@ -15,8 +15,9 @@
 #define IDEAL_MSPR (83)   // Ideal Milliseconds per Revolution
 #define SLUSH_MSPR (10) // Slush zone for Milliseconds per Revolution in Milliseconds   
 
-#define DARK_VALUE (200)  // Value above which the photoresitor is obstucted
-#define SUPERLIGHT_VALUE (250) // Value below which the vial is refracting light onto the photoresistor
+#define DARK_VALUE (200)  // Value above which the photoresitor is obstucted 
+//SPACE DARK = 200
+//GROUND DARK = 300
 #define THAWVALUE (750) // Value from the thermistor at which we need to begin recording !(485)!
 
 static int debug = 0; // Are we in debug mode? 1-Log to Serial 0-Log to SD
@@ -97,7 +98,11 @@ int main(void) {
                 
                 //Start recording
                 record = 1;
-                logToScreen("\r\n NewSet ************************************ Temp:", resistiveSensors.readQ1());
+                if(ControlSample){
+                    dutycycle = 100;
+                    ledB.dutycycle(dutycycle);
+                }
+                logToScreen("NewSet ************************************ Temp:", resistiveSensors.readQ1());
 
             }
             
@@ -115,10 +120,11 @@ int main(void) {
      if (timeTemp.second > 3) { //We're out of that three second span
 
                 //Stop recording
-                logToScreen("\r\n EndSet. Temp: ", resistiveSensors.readQ1());
+                logToScreen("EndSet ************************************ Temp:", resistiveSensors.readQ1());
                 record = 0;
-                ledB.dutycycle(0);
-                
+                if(ControlSample) {
+                    ledB.dutycycle(0);
+                }
             }
         }
 
@@ -137,19 +143,19 @@ int interval(void) {
         
         
         int PR = resistiveSensors.readQ2();
-        delay(2);
+        delay(1);
 
         if (recording) {
 
             vialLength++;
-            if (vialLength < 20) //Is there anything in the way?
+            if (vialLength < 40) //Is there anything in the way?
             { //Yes - something in the way.
 
-                if(PR > 1000) {
+                if(PR > 700) {
                     ControlSample = 1;
                 }
                 if (record) {
-                    logToScreen("\r\n Light: %d", PR); //Log Light Level
+                    logToScreen("Light:", PR); //Log Light Level
                 }
 
             } else {
@@ -184,17 +190,17 @@ int maintainSpeed() {
     if (inter > (IDEAL_MSPR + SLUSH_MSPR)) {
         dutycycle = dutycycle + 1;
         ledB.dutycycle(dutycycle);
-        logToScreen("\r\n Maintaining speed - was too slow dc:%d", dutycycle);
+        logToScreen("Maintaining speed - was too slow dc:", dutycycle);
         return 0;
     }
     //Slow down - Motor too fast.
     if (inter < (IDEAL_MSPR - SLUSH_MSPR)) {
         dutycycle = dutycycle - 1;
         ledB.dutycycle(dutycycle);
-        logToScreen("\r\n Maintaining speed - was too fast dc:%d", dutycycle);
+        logToScreen("Maintaining speed - was too fast dc:", dutycycle);
         return 0;
     } else {
-        logToScreen("\r\n Maintaining speed. inter:%d", inter);
+        logToScreen("Maintaining speed. interval:", inter);
         return 1;
     }
 }
@@ -206,51 +212,6 @@ _ISR_ _T5Interrupt() {
     
     if(x > 100000000) {
         x = 0;
-    }
-    
-}
-
-float tempInDegrees(double tempval) {
-    
-    return pow(28.41, (-0.05451*(3.3 - ((3.3 / 1024) * tempval)))/(3.3/10000)) + 3.120;
-    
-}
-
-double getTemp() { // Forumla found by Nikil
-
-    int vialFound = 0;
-    
-    while (!vialFound) {
-        int PR = resistiveSensors.readQ2();
-        delay(2);
-        if (PR > DARK_VALUE || PR < SUPERLIGHT_VALUE) //Is there anything in the way?
-        {
-
-            ledB.dutycycle(0);
-            vialFound = 1;
-            return resistiveSensors.getQ1(10, 50);
-            //return (3.3 - ((3.3 / 1024) * resistiveSensors.getQ1(20, 20)))/(3.3/10000);
-            
-        } else { // Nothing in the way
-
-            ledB.dutycycle(100); // Spin slowly
-
-        }
-    }
-    
-    return 0.0;
-}
-
-void logLight(String str, int i) {
-    
-    if (debug) {
-
-        usb.printf(str, i);
-
-    } else if (record) { //If we're recording
-
-        lightLog.add(str, i);
-
     }
     
 }
