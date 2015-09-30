@@ -1,0 +1,24 @@
+build/default/production/_ext/1161263815/usb_descriptors.o:  \
+ ../../src/usb/usb_descriptors.c  \
+../../src/usb/../core/usb.h  \
+ ../../src/usb/../core/../dev/GenericTypeDefs.h  \
+ ../../src/usb/../core/../dev/Compiler.h  \
+ ../../src/usb/../core/../usb/usb_config.h  \
+ ../../src/usb/../core/../usb/usb_common.h  \
+ ../../src/usb/../core/../usb/usb_ch9.h  \
+ ../../src/usb/../core/../usb/usb_device.h  \
+ ../../src/usb/../core/../usb/usb_hal.h  \
+ ../../src/usb/../core/../usb/usb_hal_pic24f.h  \
+ ../../src/usb/../core/../usb/../dev/Compiler.h  \
+ ../../src/usb/../core/../usb/usb_config.h  \
+../../src/usb/../core/system.h  \
+ ../../src/usb/usb_function_msd.h  \
+../../src/usb/../dev/Compiler.h  \
+ ../../src/usb/../dev/GenericTypeDefs.h  \
+../../src/usb/../mdd/FSDefs.h  \
+ ../../src/usb/../mdd/../dev/GenericTypeDefs.h  \
+ ../../src/usb/usb_function_cdc.h  \
+../../src/dev/GenericTypeDefs.h  \
+ ../../src/usb/usb_config.h  \
+../../src/usb/usb_device.h  \
+ ../../src/usb/usb_hal_pic24f.h 

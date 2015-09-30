@@ -1,0 +1,6 @@
+build/*/build/
+build/*/dist/
+build/*/nbproject/
+.gitignore
+_SYNCAPP/
+src/app/*/

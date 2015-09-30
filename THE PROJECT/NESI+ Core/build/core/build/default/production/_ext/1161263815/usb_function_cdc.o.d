@@ -1,0 +1,20 @@
+build/default/production/_ext/1161263815/usb_function_cdc.o:  \
+ ../../src/usb/usb_function_cdc.c  \
+../../src/core/usb.h  \
+ ../../src/core/../dev/GenericTypeDefs.h  \
+../../src/core/../dev/Compiler.h  \
+ ../../src/core/../usb/usb_config.h  \
+../../src/core/../usb/usb_common.h  \
+ ../../src/core/../usb/usb_ch9.h  \
+../../src/core/../usb/usb_device.h  \
+ ../../src/core/../usb/usb_hal.h  \
+../../src/core/../usb/usb_hal_pic24f.h  \
+ ../../src/core/../usb/../dev/Compiler.h  \
+ ../../src/core/../usb/usb_config.h  \
+../../src/core/system.h  \
+ ../../src/usb/usb_ch9.h  \
+../../src/usb/usb_hal_pic24f.h  \
+ ../../src/usb/usb_function_cdc.h  \
+../../src/dev/GenericTypeDefs.h  \
+ ../../src/usb/usb_config.h  \
+../../src/usb/usb_device.h 
