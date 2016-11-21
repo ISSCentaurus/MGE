@@ -15,10 +15,8 @@
 #define IDEAL_MSPR (83)   // Ideal Milliseconds per Revolution
 #define SLUSH_MSPR (10) // Slush zone for Milliseconds per Revolution in Milliseconds   
 
-#define DARK_VALUE (200)  // Value above which the photoresitor is obstucted 
-//SPACE DARK = 200
-//GROUND DARK = 300
-#define THAWVALUE (750) // Value from the thermistor at which we need to begin recording !(485)!
+#define DARK_VALUE (120)  // Value above which the photoresitor is obstucted
+//#define THAWVALUE (750) // Value from the thermistor at which we need to begin recording !(485)!
 
 static int debug = 0; // Are we in debug mode? 1-Log to Serial 0-Log to SD
 static int dutycycle = 100; // Current dutycycle of the motor
@@ -39,16 +37,18 @@ int main(void) {
     // Initialize all modules
     nesi.init();
     lightLog.init();
-    
+
     // Connect the USB COM interface
     if (debug) {
         usb.connect();
     }
-    
+
     record = 1;
+    lightLog.open();
     logToScreen("*************************************************************", 0); // Will help identify new tests
+    lightLog.close();
     record = 0;
-    
+
     T5CON = 0x0030; // disabled, prescaled, internal oscillator
     TMR5 = 0; // clear the timer
 
@@ -70,7 +70,7 @@ int main(void) {
 
     ledB.dutycycle(100); // Start the motor
     ledR.dutycycle(100); // Turn on the Amber LED
-    
+
     while (1) { // Main Loop
 
         /*
@@ -80,8 +80,8 @@ int main(void) {
          */
 
 
-        if(!ControlSample || record) {
-         
+        if (!ControlSample || record) {
+
             maintainSpeed(); // Hold centrifuge at speed
 
         }
@@ -89,42 +89,43 @@ int main(void) {
         timeTemp = dateTime.get(); // Get Current Time
 
         if (!record) { // We're not recording
-            
+
             if (((timeTemp.minute % 1) == 0) && (timeTemp.second <= 3)) {
 
-                
+
                 usb.disconnect();
                 lightLog.open();
-                
+
                 //Start recording
                 record = 1;
-                if(ControlSample){
+                if (ControlSample) {
                     dutycycle = 100;
                     ledB.dutycycle(dutycycle);
                 }
-                logToScreen("NewSet ************************************ Temp:", resistiveSensors.readQ1());
+                logToScreen("NewSet ##### Temp:", resistiveSensors.readQ1());
 
             }
-            
-            if (((timeTemp.minute % 1) == 0) && (timeTemp.second > 6)) {
-                
-                
-                lightLog.close();
-                usb.connect();
-                
-            }
-            
+
+            /*if (((timeTemp.minute % 1) == 0) && (timeTemp.second > 6)) {
+
+
+
+
+            }*/
+
         } else { // We're recording
 
-            
-     if (timeTemp.second > 3) { //We're out of that three second span
+
+            if (timeTemp.second > 3) { //We're out of that three second span
 
                 //Stop recording
-                logToScreen("EndSet ************************************ Temp:", resistiveSensors.readQ1());
+                logToScreen("EndSet ##### Temp:", resistiveSensors.readQ1());
                 record = 0;
-                if(ControlSample) {
+                if (ControlSample) {
                     ledB.dutycycle(0);
                 }
+                lightLog.close();
+                usb.connect();
             }
         }
 
@@ -140,8 +141,8 @@ int interval(void) {
     int inter = 0;
     int vialLength = 0;
     while (1) {
-        
-        
+
+
         int PR = resistiveSensors.readQ2();
         delay(2);
 
@@ -151,7 +152,7 @@ int interval(void) {
             if (vialLength < 20) //Is there anything in the way?
             { //Yes - something in the way.
 
-                if(PR > 900) {
+                if (PR > 512) { //Magic blacked out vial value (Frozen was ~290 max)
                     ControlSample = 1;
                 }
                 if (record) {
@@ -160,7 +161,7 @@ int interval(void) {
 
             } else {
                 recording = 0;
-                if(PR > DARK_VALUE){
+                if (PR > DARK_VALUE) {
                     dutycycle = 100;
                 }
                 return inter;
@@ -173,7 +174,7 @@ int interval(void) {
                 recording = 1;
                 inter = x - milisecondCount;
                 milisecondCount = x;
-            
+
             }
 
         }
@@ -191,6 +192,7 @@ int maintainSpeed() {
         dutycycle = dutycycle + 1;
         ledB.dutycycle(dutycycle);
         logToScreen("Maintaining speed - was too slow dc:", dutycycle);
+        logToScreen("Interval:", inter);
         return 0;
     }
     //Slow down - Motor too fast.
@@ -198,9 +200,11 @@ int maintainSpeed() {
         dutycycle = dutycycle - 1;
         ledB.dutycycle(dutycycle);
         logToScreen("Maintaining speed - was too fast dc:", dutycycle);
+        logToScreen("Interval:", inter);
         return 0;
     } else {
-        logToScreen("Maintaining speed. interval:", inter);
+        logToScreen("Maintaining speed - was right speed dc:", dutycycle);
+        logToScreen("Interval:", inter);
         return 1;
     }
 }
@@ -209,11 +213,11 @@ _ISR_ _T5Interrupt() {
 
     _T5IF = OFF; //clear overflow flag
     x++;
-    
-    if(x > 100000000) {
+
+    if (x > 100000000) {
         x = 0;
     }
-    
+
 }
 
 void logToScreen(String str, int i) {
@@ -225,11 +229,5 @@ void logToScreen(String str, int i) {
     } else if (record) { //If we're recording
 
         lightLog.add(str, i);
-
-    } else {
-        
-        //dataLog.add(str, i); 
-        
     }
-
 }
