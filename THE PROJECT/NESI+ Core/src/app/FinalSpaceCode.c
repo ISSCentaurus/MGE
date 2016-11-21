@@ -98,18 +98,18 @@ int main(void) {
 
                 //Start recording
                 record = 1;
+                logToScreen("NewSet ##### Temp:", resistiveSensors.readQ1());
                 if (ControlSample) {
                     dutycycle = 100;
                     ledB.dutycycle(dutycycle);
+                    logToScreen("Control Sample", 0);
                 }
-                logToScreen("NewSet ##### Temp:", resistiveSensors.readQ1());
+                ControlSample = 0;
+
 
             }
 
             /*if (((timeTemp.minute % 1) == 0) && (timeTemp.second > 6)) {
-
-
-
 
             }*/
 
@@ -123,7 +123,6 @@ int main(void) {
                 record = 0;
                 if (ControlSample) {
                     ledB.dutycycle(0);
-                    ControlSample = 0;
                 }
                 lightLog.close();
                 usb.connect();
