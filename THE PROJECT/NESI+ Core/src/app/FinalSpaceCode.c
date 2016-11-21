@@ -123,6 +123,7 @@ int main(void) {
                 record = 0;
                 if (ControlSample) {
                     ledB.dutycycle(0);
+                    ControlSample = 0;
                 }
                 lightLog.close();
                 usb.connect();
