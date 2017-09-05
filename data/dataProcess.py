@@ -17,7 +17,12 @@ class FindGrowth():
         self.isControlVial = False
 
         self.logEverything = False # CHANGE TO True TO LOG minLight FOR ALL VIALS
-    
+   
+        if(self.logEverything == False):
+            print("Average minLight", "Current Temp", "Current Dutycycle", "Current Interval", "Current VialSet", "Current DataSet", sep=", ")
+        else:
+            print("First Peak", "minLight", "Second Peak", "isControlVial", "Current Dutycycle", "Current Interval", "Current Temp", "Current VialSet", "Current DataSet", sep=", ")
+
     def processLine(self, line):
         if(line.startswith("*************************************")): # Sample Swapped
             self.sampleSwapped(line)
@@ -86,6 +91,6 @@ class FindGrowth():
 
 if __name__ == "__main__":
     process = FindGrowth()
-    lines = [line.rstrip('\n') for line in open('lightLog.txt')]
+    lines = [line.rstrip('\n') for line in open('lightLog.space.txt')]
     for i in lines: 
         process.processLine(i)
